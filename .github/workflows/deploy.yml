@@ -1,0 +1,46 @@
+name: Deploy Java WebApp
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Download Build Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: my-webapp-${{ github.run_number }}
+        path: target/
+
+    - name: Install and Start Tomcat
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget
+        wget https://downloads.apache.org/tomcat/tomcat-9/v9.0.54/bin/apache-tomcat-9.0.54.tar.gz
+        tar -xzf apache-tomcat-9.0.54.tar.gz
+        sudo mv apache-tomcat-9.0.54 /opt/tomcat
+        /opt/tomcat/bin/startup.sh
+
+    - name: Deploy to Server
+      env:
+        DEPLOY_SERVER: ${{ secrets.DEPLOY_SERVER }}
+        DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        DEPLOY_PASSWORD: ${{ secrets.DEPLOY_PASSWORD }}
+      run: |
+        scp target/my-webapp-${{ github.run_number }}.war $DEPLOY_USER@$DEPLOY_SERVER:/opt/tomcat/webapps/
