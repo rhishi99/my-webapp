@@ -1,11 +1,10 @@
 name: Deploy Java WebApp
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Java-mvn-build"]
+    types:
+      - completed
 
 jobs:
   deploy:
@@ -14,13 +13,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-      
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
 
     - name: Download Build Artifact
       uses: actions/download-artifact@v3
