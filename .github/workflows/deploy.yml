@@ -8,16 +8,23 @@ on:
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Get the latest artifact name dynamically
+      id: get-artifact
+      run: |
+        ARTIFACT_NAME=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts" \
+          | jq -r '.artifacts | sort_by(.created_at) | last | .name')
+          
+        echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
+        echo "Found artifact: $ARTIFACT_NAME"
 
     - name: Download Build Artifact
       uses: actions/download-artifact@v4
       with:
-        name: my-webapp
+        name: ${{ env.ARTIFACT_NAME }}
         path: target/
 
     - name: List files in target directory (Debugging)
