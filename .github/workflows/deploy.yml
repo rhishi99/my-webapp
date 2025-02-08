@@ -20,6 +20,14 @@ jobs:
         name: my-webapp
         path: target/
 
+    - name: List files in target directory (Debugging)
+      run: ls -lah target/
+
+    - name: Set WAR filename dynamically
+      run: |
+        WAR_FILE=$(ls target/*.war | head -n 1)
+        echo "WAR_FILE=$WAR_FILE" >> $GITHUB_ENV
+
     - name: Install and Start Tomcat
       run: |
         sudo apt-get update
@@ -35,4 +43,5 @@ jobs:
         DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         DEPLOY_PASSWORD: ${{ secrets.DEPLOY_PASSWORD }}
       run: |
-        scp target/my-webapp-${{ github.run_number }}.war $DEPLOY_USER@$DEPLOY_SERVER:/opt/tomcat/webapps/
+        echo "Deploying: $WAR_FILE"
+        scp "$WAR_FILE" $DEPLOY_USER@$DEPLOY_SERVER:/opt/tomcat/webapps/
