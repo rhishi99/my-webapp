@@ -2,7 +2,7 @@ name: Deploy-Java-WebApp
 
 on:
   workflow_run:
-    workflows: ["Java-mvn-build"]
+    workflows: ["build"]
     types:
       - completed
 
@@ -17,7 +17,7 @@ jobs:
     - name: Download Build Artifact
       uses: actions/download-artifact@v4
       with:
-        name: my-webapp-${{ github.run_number }}
+        name: my-webapp
         path: target/
 
     - name: Install and Start Tomcat

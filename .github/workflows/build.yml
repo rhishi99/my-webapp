@@ -1,4 +1,4 @@
-name: Java-mvn-build
+name: build
 
 on:
   push:
@@ -37,5 +37,5 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: my-webapp-${{ env.BUILD_LABEL }}
+        name: my-webapp
         path: target/my-webapp-${{ env.BUILD_LABEL }}.war
